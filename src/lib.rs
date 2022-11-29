@@ -1,5 +1,8 @@
+use std::ops::Range;
+
 use crate::pulldown::{
-    Alignment, CodeBlockKind, CowStr, Error, Event, HeadingLevel, LinkType, Options, Tag,
+    Alignment, CodeBlockKind, CowStr, Error, Event, HeadingLevel, LinkType, OffsetItem, Options,
+    Tag,
 };
 
 use ::pulldown_cmark as original;
@@ -10,11 +13,19 @@ struct Pulldown;
 
 impl pulldown::Pulldown for Pulldown {
     fn escape_href(s: String) -> Result<String, Error> {
-        todo!()
+        let mut temp = String::new();
+        match original::escape::escape_href(&mut temp, &s) {
+            Ok(_) => Ok(temp),
+            Err(e) => Err(e.into()),
+        }
     }
 
     fn escape_html(s: String) -> Result<String, Error> {
-        todo!()
+        let mut temp = String::new();
+        match original::escape::escape_html(&mut temp, &s) {
+            Ok(_) => Ok(temp),
+            Err(e) => Err(e.into()),
+        }
     }
 
     fn markdown_to_html(markdown_string: String) -> String {
@@ -24,17 +35,35 @@ impl pulldown::Pulldown for Pulldown {
         html_buf
     }
 
-    fn parse(markdown: String) -> Vec<Event> {
-        let mut events: Vec<Event> = vec![];
-        let parser = original::Parser::new(&markdown);
-        for event in parser.into_iter() {
-            events.push(event);
-        }
-        events
+    fn parse(markdown: String) -> Vec<OffsetItem> {
+        original::Parser::new(&markdown)
+            .into_offset_iter()
+            .map(|offset_item| (offset_item.0.into(), offset_item.1.into()))
+            .collect()
     }
 
-    fn parse_with_options(markdown: String, options: Options) -> Vec<Event> {
-        todo!()
+    fn parse_with_options(markdown: String, options: Options) -> Vec<OffsetItem> {
+        original::Parser::new_ext(&markdown, options.into())
+            .into_offset_iter()
+            .map(|offset_item| (offset_item.0.into(), offset_item.1.into()))
+            .collect()
+    }
+}
+
+impl From<Range<usize>> for pulldown::Range {
+    fn from(r: Range<usize>) -> Self {
+        pulldown::Range {
+            start: r.start.try_into().unwrap(),
+            end: r.end.try_into().unwrap(),
+        }
+    }
+}
+
+impl From<std::io::Error> for Error {
+    fn from(e: std::io::Error) -> Self {
+        Error {
+            message: e.to_string(),
+        }
     }
 }
 
@@ -86,8 +115,8 @@ impl From<original::HeadingLevel> for HeadingLevel {
     }
 }
 
-impl<'a> From<original::Tag<'a>> for Tag {
-    fn from(tag: original::Tag<'a>) -> Self {
+impl From<original::Tag<'_>> for Tag {
+    fn from(tag: original::Tag<'_>) -> Self {
         match tag {
             original::Tag::Paragraph => Tag::Paragraph,
             original::Tag::Heading(heading_level, s, str_arr) => Tag::Heading((
@@ -126,16 +155,18 @@ impl<'a> From<original::Tag<'a>> for Tag {
 impl<'a> From<original::Event<'a>> for Event {
     fn from(original_event: original::Event<'a>) -> Self {
         match original_event {
-            original::Event::Start(_) => todo!(),
-            original::Event::End(_) => todo!(),
-            original::Event::Text(_) => todo!(),
-            original::Event::Code(_) => todo!(),
-            original::Event::Html(_) => todo!(),
-            original::Event::FootnoteReference(_) => todo!(),
-            original::Event::SoftBreak => todo!(),
-            original::Event::HardBreak => todo!(),
-            original::Event::Rule => todo!(),
-            original::Event::TaskListMarker(_) => todo!(),
+            original::Event::Start(tag) => Event::Start(tag.into()),
+            original::Event::End(tag) => Event::End(tag.into()),
+            original::Event::Text(cow_str) => Event::Text(cow_str.into_string()),
+            original::Event::Code(cow_str) => Event::Code(cow_str.into_string()),
+            original::Event::Html(cow_str) => Event::Html(cow_str.into_string()),
+            original::Event::FootnoteReference(cow_str) => {
+                Event::FootnoteReference(cow_str.into_string())
+            }
+            original::Event::SoftBreak => Event::SoftBreak,
+            original::Event::HardBreak => Event::HardBreak,
+            original::Event::Rule => Event::Rule,
+            original::Event::TaskListMarker(tag) => Event::TaskListMarker(tag),
         }
     }
 }

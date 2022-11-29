@@ -104,8 +104,9 @@ record link-def{
     span: range,
 }
 
+type offset-item = tuple<event,range> 
 
 
-parse: func(markdown: string) -> list<event>
-parse-with-options: func(markdown: string, options: options) -> list<event>
+parse: func(markdown: string) -> list<offset-item>
+parse-with-options: func(markdown: string, options: options) -> list<offset-item>
 
