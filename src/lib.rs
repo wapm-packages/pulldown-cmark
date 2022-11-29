@@ -90,21 +90,11 @@ impl<'a> From<original::Tag<'a>> for Tag {
     fn from(tag: original::Tag<'a>) -> Self {
         match tag {
             original::Tag::Paragraph => Tag::Paragraph,
-            original::Tag::Heading(heading_level, s, str_arr) => {
-                if let Some(s) = s {
-                    Tag::Heading((
-                        heading_level.into(),
-                        Some(s.to_string()),
-                        str_arr.iter().map(|&s| s.into()).collect(),
-                    ))
-                } else {
-                    Tag::Heading((
-                        heading_level.into(),
-                        None,
-                        str_arr.iter().map(|&s| s.into()).collect(),
-                    ))
-                }
-            }
+            original::Tag::Heading(heading_level, s, str_arr) => Tag::Heading((
+                heading_level.into(),
+                s.map(ToString::to_string),
+                str_arr.iter().map(|&s| s.into()).collect(),
+            )),
             original::Tag::BlockQuote => Tag::BlockQuote,
             original::Tag::CodeBlock(cbk) => Tag::CodeBlock(cbk.into()),
             original::Tag::List(l) => Tag::ListTag(l),
