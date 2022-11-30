@@ -3,7 +3,7 @@ use crate::pulldown::{
     Range, Tag,
 };
 
-use original;
+use original::{self, OffsetIter};
 
 wai_bindgen_rust::export!("pulldown.wai");
 
@@ -237,6 +237,9 @@ impl PartialEq<original::Event<'_>> for Event {
             (Self::FootnoteReference(l0), original::Event::FootnoteReference(r0)) => {
                 l0 == &r0.clone().into_string()
             }
+            (Self::SoftBreak, original::Event::SoftBreak) => true,
+            (Self::HardBreak, original::Event::HardBreak) => true,
+            (Self::Rule, original::Event::Rule) => true,
             (Self::TaskListMarker(l0), original::Event::TaskListMarker(r0)) => l0 == r0,
             _ => false,
         }
@@ -246,17 +249,26 @@ impl PartialEq<original::Event<'_>> for Event {
 impl PartialEq<original::Tag<'_>> for Tag {
     fn eq(&self, other: &original::Tag<'_>) -> bool {
         match (self, other) {
+            (Self::Paragraph, original::Tag::Paragraph) => true,
             (Self::Heading(l0), original::Tag::Heading(r0, r1, r2)) => {
                 l0.0 == *r0
                     && l0.1 == r1.map(str::to_string)
-                    && l0.2 == r2.iter().map(|&s| s.to_string()).collect::<Vec<String>>()
+                    && l0.2 == *r2.iter().map(|&s| String::from(s)).collect::<Vec<String>>()
             }
+            (Self::BlockQuote, original::Tag::BlockQuote) => true,
             (Self::CodeBlock(l0), original::Tag::CodeBlock(r0)) => l0 == r0,
             (Self::ListTag(l0), original::Tag::List(r0)) => l0 == r0,
+            (Self::Item, original::Tag::Item) => true,
             (Self::FootnoteDefinition(l0), original::Tag::FootnoteDefinition(r0)) => {
                 l0 == &r0.clone().into_string()
             }
             (Self::Table(l0), original::Tag::Table(r0)) => l0 == r0,
+            (Self::TableHead, original::Tag::TableHead) => true,
+            (Self::TableRow, original::Tag::TableRow) => true,
+            (Self::TableCell, original::Tag::TableCell) => true,
+            (Self::Emphasis, original::Tag::Emphasis) => true,
+            (Self::Strong, original::Tag::Strong) => true,
+            (Self::StrikeThrough, original::Tag::Strikethrough) => true,
             (Self::Link(l0), original::Tag::Link(r0_link_type, r0_cow_str_1, r0_cow_str_2)) => {
                 l0.0 == *r0_link_type
                     && l0.1 == r0_cow_str_1.clone().into_string()
@@ -313,7 +325,9 @@ impl PartialEq<original::LinkType> for LinkType {
 impl PartialEq<original::CodeBlockKind<'_>> for CodeBlockKind {
     fn eq(&self, other: &original::CodeBlockKind<'_>) -> bool {
         match (self, other) {
-            (Self::Fenced(l0), original::CodeBlockKind::Fenced(r0)) => l0 == &r0.to_string(),
+            (Self::Fenced(l0), original::CodeBlockKind::Fenced(r0)) => {
+                l0 == &r0.clone().into_string()
+            }
             _ => false,
         }
     }
@@ -339,12 +353,6 @@ impl From<Range> for std::ops::Range<usize> {
             start: r.start.try_into().unwrap(),
             end: r.end.try_into().unwrap(),
         }
-    }
-}
-
-impl PartialEq<(original::Event<'_>, std::ops::Range<usize>)> for (Event, Range) {
-    fn eq(&self, other: &(original::Event, std::ops::Range<usize>)) -> bool {
-        todo!()
     }
 }
 
@@ -382,14 +390,19 @@ hello
 
         let option = Options::ENABLE_STRIKETHROUGH;
 
-        let iters = Pulldown::parse_with_options(markdown_input.to_string(), option);
+        let iters: Vec<OffsetItem> =
+            Pulldown::parse_with_options(markdown_input.to_string(), option);
 
         let expected: Vec<(original::Event, std::ops::Range<usize>)> =
             original::Parser::new_ext(markdown_input, option.into())
                 .into_offset_iter()
                 .collect();
 
-        assert_eq!(expected, iters);
+        assert_eq!(iters.len(), expected.len());
+        for (a, b) in iters.into_iter().zip(expected) {
+            assert_eq!(a.0, b.0);
+            assert_eq!(a.1, b.1);
+        }
     }
     #[test]
     fn html_test_1() {
