@@ -6,6 +6,7 @@ use crate::pulldown::{
 };
 
 use ::pulldown_cmark as original;
+use original::html;
 
 wai_bindgen_rust::export!("pulldown.wai");
 
@@ -32,6 +33,7 @@ impl pulldown::Pulldown for Pulldown {
         let parser = original::Parser::new(&markdown_string);
         let mut html_buf = String::new();
         original::html::push_html(&mut html_buf, parser);
+        // println!("{:?}", html_buf);
         html_buf
     }
 
@@ -218,5 +220,118 @@ impl From<Options> for original::Options {
             options.insert(original::Options::ENABLE_HEADING_ATTRIBUTES);
         }
         options
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pulldown::Pulldown as _;
+    // use pulldown_cmark::{html, Options, Parser};
+
+    // #[test]
+    // fn basic_test() {
+    //     let markdown_input = "Hello world, this is a ~~complicated~~ *very simple* example.";
+
+    //     // Set up options and parser. Strikethroughs are not part of the CommonMark standard
+    //     // and we therefore must enable it explicitly.
+    //     let mut options = Options::empty();
+    //     options.insert(Options::ENABLE_STRIKETHROUGH);
+    //     let parser = Parser::new_ext(markdown_input, options);
+
+    //     // Write to String buffer.
+    //     let mut html_output = String::new();
+    //     html::push_html(&mut html_output, parser);
+
+    //     // Check that the output is what we expected.
+    //     let expected_html =
+    //         "<p>Hello world, this is a <del>complicated</del> <em>very simple</em> example.</p>\n";
+    //     assert_eq!(expected_html, &html_output);
+    // }
+
+    // #[test]
+    // fn basic_html_push() {
+    //     let markdown_str = r#"
+    //     hello
+    //     =====
+
+    //     * alpha
+    //     * beta
+    //     "#;
+    //     let parser = Parser::new(markdown_str);
+
+    //     let mut html_buf = String::new();
+    //     html::push_html(&mut html_buf, parser);
+
+    //     assert_eq!(
+    //         html_buf,
+    //         r#"<h1>hello</h1>
+    //     <ul>
+    //     <li>alpha</li>
+    //     <li>beta</li>
+    //     </ul>
+    //     "#
+    //     );
+    // }
+    #[test]
+    fn convert_markdown_to_html_() {
+        let markdown_str = r#"
+hello
+=====
+
+* alpha
+* beta
+"#;
+
+        let result = Pulldown::markdown_to_html(markdown_str.to_string());
+
+        assert_eq!(
+            result,
+            r#"<h1>hello</h1>
+<ul>
+<li>alpha</li>
+<li>beta</li>
+</ul>
+"#
+        );
+    }
+
+    #[test]
+    fn parser_with_option_strikethrough() {
+        let markdown_input = "Hello world, this is a ~~complicated~~ *very simple* example.";
+        let mut options = Options::empty();
+        options.insert(Options::ENABLE_STRIKETHROUGH);
+
+        let iters = Pulldown::parse_with_options(markdown_input.to_string(), options);
+
+        for iter in iters {
+            println!("{:?}", iter);
+        }
+
+        assert_eq!(5, 5);
+    }
+    #[test]
+    fn html_test_1() {
+        let original = r##"Little header
+<script type="text/js">
+function some_func() {
+console.log("teeeest");
+}
+function another_func() {
+console.log("fooooo");
+}
+</script>"##;
+        let expected = r##"<p>Little header</p>
+<script type="text/js">
+function some_func() {
+console.log("teeeest");
+}
+function another_func() {
+console.log("fooooo");
+}
+</script>"##;
+
+        let result = Pulldown::markdown_to_html(original.to_string());
+        assert_eq!(result, expected);
     }
 }
