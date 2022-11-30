@@ -1,12 +1,9 @@
-use std::ops::Range;
-
 use crate::pulldown::{
     Alignment, CodeBlockKind, CowStr, Error, Event, HeadingLevel, LinkType, OffsetItem, Options,
-    Tag,
+    Range, Tag,
 };
 
-use ::pulldown_cmark as original;
-use original::html;
+use original;
 
 wai_bindgen_rust::export!("pulldown.wai");
 
@@ -40,20 +37,20 @@ impl pulldown::Pulldown for Pulldown {
     fn parse(markdown: String) -> Vec<OffsetItem> {
         original::Parser::new(&markdown)
             .into_offset_iter()
-            .map(|offset_item| (offset_item.0.into(), offset_item.1.into()))
+            .map(|(e, r)| (e.into(), r.into()))
             .collect()
     }
 
     fn parse_with_options(markdown: String, options: Options) -> Vec<OffsetItem> {
         original::Parser::new_ext(&markdown, options.into())
             .into_offset_iter()
-            .map(|offset_item| (offset_item.0.into(), offset_item.1.into()))
+            .map(|(e, r)| (e.into(), r.into()))
             .collect()
     }
 }
 
-impl From<Range<usize>> for pulldown::Range {
-    fn from(r: Range<usize>) -> Self {
+impl From<std::ops::Range<usize>> for Range {
+    fn from(r: std::ops::Range<usize>) -> Self {
         pulldown::Range {
             start: r.start.try_into().unwrap(),
             end: r.end.try_into().unwrap(),
@@ -223,56 +220,139 @@ impl From<Options> for original::Options {
     }
 }
 
+impl PartialEq<std::ops::Range<usize>> for pulldown::Range {
+    fn eq(&self, other: &std::ops::Range<usize>) -> bool {
+        self.start == other.start.try_into().unwrap() && self.end == other.end.try_into().unwrap()
+    }
+}
+
+impl PartialEq<original::Event<'_>> for Event {
+    fn eq(&self, other: &original::Event<'_>) -> bool {
+        match (self, other) {
+            (Self::Start(l0), original::Event::Start(r0)) => l0 == r0,
+            (Self::End(l0), original::Event::End(r0)) => l0 == r0,
+            (Self::Text(l0), original::Event::Text(r0)) => l0 == &r0.clone().into_string(),
+            (Self::Code(l0), original::Event::Code(r0)) => l0 == &r0.clone().into_string(),
+            (Self::Html(l0), original::Event::Html(r0)) => l0 == &r0.clone().into_string(),
+            (Self::FootnoteReference(l0), original::Event::FootnoteReference(r0)) => {
+                l0 == &r0.clone().into_string()
+            }
+            (Self::TaskListMarker(l0), original::Event::TaskListMarker(r0)) => l0 == r0,
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<original::Tag<'_>> for Tag {
+    fn eq(&self, other: &original::Tag<'_>) -> bool {
+        match (self, other) {
+            (Self::Heading(l0), original::Tag::Heading(r0, r1, r2)) => {
+                l0.0 == *r0
+                    && l0.1 == r1.map(str::to_string)
+                    && l0.2 == r2.iter().map(|&s| s.to_string()).collect::<Vec<String>>()
+            }
+            (Self::CodeBlock(l0), original::Tag::CodeBlock(r0)) => l0 == r0,
+            (Self::ListTag(l0), original::Tag::List(r0)) => l0 == r0,
+            (Self::FootnoteDefinition(l0), original::Tag::FootnoteDefinition(r0)) => {
+                l0 == &r0.clone().into_string()
+            }
+            (Self::Table(l0), original::Tag::Table(r0)) => l0 == r0,
+            (Self::Link(l0), original::Tag::Link(r0_link_type, r0_cow_str_1, r0_cow_str_2)) => {
+                l0.0 == *r0_link_type
+                    && l0.1 == r0_cow_str_1.clone().into_string()
+                    && l0.2 == r0_cow_str_2.clone().into_string()
+            }
+            (Self::Image(l0), original::Tag::Image(r0_link_type, r0_cow_str_1, r0_cow_str_2)) => {
+                l0.0 == *r0_link_type
+                    && l0.1 == r0_cow_str_1.clone().into_string()
+                    && l0.2 == r0_cow_str_2.clone().into_string()
+            }
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<original::Alignment> for Alignment {
+    fn eq(&self, other: &original::Alignment) -> bool {
+        matches!(
+            (self, other),
+            (Alignment::None, original::Alignment::None)
+                | (Alignment::Left, original::Alignment::Left)
+                | (Alignment::Center, original::Alignment::Center)
+                | (Alignment::Right, original::Alignment::Right)
+        )
+    }
+}
+
+impl PartialEq<original::LinkType> for LinkType {
+    fn eq(&self, other: &original::LinkType) -> bool {
+        matches!(
+            (self, other),
+            (LinkType::Inline, original::LinkType::Inline)
+                | (LinkType::Reference, original::LinkType::Reference)
+                | (
+                    LinkType::ReferenceUnknown,
+                    original::LinkType::ReferenceUnknown
+                )
+                | (LinkType::Collapsed, original::LinkType::Collapsed)
+                | (
+                    LinkType::CollapsedUnknown,
+                    original::LinkType::CollapsedUnknown
+                )
+                | (LinkType::Shortcut, original::LinkType::Shortcut)
+                | (
+                    LinkType::ShortcutUnknown,
+                    original::LinkType::ShortcutUnknown
+                )
+                | (LinkType::Autolink, original::LinkType::Autolink)
+                | (LinkType::Email, original::LinkType::Email)
+        )
+    }
+}
+
+impl PartialEq<original::CodeBlockKind<'_>> for CodeBlockKind {
+    fn eq(&self, other: &original::CodeBlockKind<'_>) -> bool {
+        match (self, other) {
+            (Self::Fenced(l0), original::CodeBlockKind::Fenced(r0)) => l0 == &r0.to_string(),
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq<original::HeadingLevel> for HeadingLevel {
+    fn eq(&self, other: &original::HeadingLevel) -> bool {
+        matches!(
+            (self, other),
+            (HeadingLevel::H1, original::HeadingLevel::H1)
+                | (HeadingLevel::H2, original::HeadingLevel::H2)
+                | (HeadingLevel::H3, original::HeadingLevel::H3)
+                | (HeadingLevel::H4, original::HeadingLevel::H4)
+                | (HeadingLevel::H5, original::HeadingLevel::H5)
+                | (HeadingLevel::H6, original::HeadingLevel::H6)
+        )
+    }
+}
+
+impl From<Range> for std::ops::Range<usize> {
+    fn from(r: Range) -> Self {
+        std::ops::Range {
+            start: r.start.try_into().unwrap(),
+            end: r.end.try_into().unwrap(),
+        }
+    }
+}
+
+impl PartialEq<(original::Event<'_>, std::ops::Range<usize>)> for (Event, Range) {
+    fn eq(&self, other: &(original::Event, std::ops::Range<usize>)) -> bool {
+        todo!()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::pulldown::Pulldown as _;
-    // use pulldown_cmark::{html, Options, Parser};
 
-    // #[test]
-    // fn basic_test() {
-    //     let markdown_input = "Hello world, this is a ~~complicated~~ *very simple* example.";
-
-    //     // Set up options and parser. Strikethroughs are not part of the CommonMark standard
-    //     // and we therefore must enable it explicitly.
-    //     let mut options = Options::empty();
-    //     options.insert(Options::ENABLE_STRIKETHROUGH);
-    //     let parser = Parser::new_ext(markdown_input, options);
-
-    //     // Write to String buffer.
-    //     let mut html_output = String::new();
-    //     html::push_html(&mut html_output, parser);
-
-    //     // Check that the output is what we expected.
-    //     let expected_html =
-    //         "<p>Hello world, this is a <del>complicated</del> <em>very simple</em> example.</p>\n";
-    //     assert_eq!(expected_html, &html_output);
-    // }
-
-    // #[test]
-    // fn basic_html_push() {
-    //     let markdown_str = r#"
-    //     hello
-    //     =====
-
-    //     * alpha
-    //     * beta
-    //     "#;
-    //     let parser = Parser::new(markdown_str);
-
-    //     let mut html_buf = String::new();
-    //     html::push_html(&mut html_buf, parser);
-
-    //     assert_eq!(
-    //         html_buf,
-    //         r#"<h1>hello</h1>
-    //     <ul>
-    //     <li>alpha</li>
-    //     <li>beta</li>
-    //     </ul>
-    //     "#
-    //     );
-    // }
     #[test]
     fn convert_markdown_to_html_() {
         let markdown_str = r#"
@@ -299,16 +379,17 @@ hello
     #[test]
     fn parser_with_option_strikethrough() {
         let markdown_input = "Hello world, this is a ~~complicated~~ *very simple* example.";
-        let mut options = Options::empty();
-        options.insert(Options::ENABLE_STRIKETHROUGH);
 
-        let iters = Pulldown::parse_with_options(markdown_input.to_string(), options);
+        let option = Options::ENABLE_STRIKETHROUGH;
 
-        for iter in iters {
-            println!("{:?}", iter);
-        }
+        let iters = Pulldown::parse_with_options(markdown_input.to_string(), option);
 
-        assert_eq!(5, 5);
+        let expected: Vec<(original::Event, std::ops::Range<usize>)> =
+            original::Parser::new_ext(markdown_input, option.into())
+                .into_offset_iter()
+                .collect();
+
+        assert_eq!(expected, iters);
     }
     #[test]
     fn html_test_1() {
