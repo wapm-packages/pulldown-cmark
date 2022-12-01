@@ -428,4 +428,29 @@ console.log("fooooo");
         let result = Pulldown::markdown_to_html(original.to_string());
         assert_eq!(result, expected);
     }
+    #[test]
+    fn html_test_2() {
+        let original_string = r##"Little header
+<script
+type="text/js">
+function some_func() {
+console.log("teeeest");
+}
+function another_func() {
+console.log("fooooo");
+}
+</script>"##;
+        let expected = r##"<p>Little header</p>
+<script
+type="text/js">
+function some_func() {
+console.log("teeeest");
+}
+function another_func() {
+console.log("fooooo");
+}
+</script>"##;
+        let result = Pulldown::markdown_to_html(original_string.to_string());
+        assert_eq!(result, expected);
+    }
 }
