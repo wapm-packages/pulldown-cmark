@@ -1,9 +1,0 @@
-[project]
-name = "pulldown_cmark"
-version = "0.1.0"
-keywords = []
-dependencies = ["wasmer", "wasmer_compiler_cranelift"]
-
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
