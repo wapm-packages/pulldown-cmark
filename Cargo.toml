@@ -7,12 +7,12 @@ authors = ["Wasmer Engineering Team <engineering@wasmer.io>"]
 repository = "https://github.com/wapm-packages/pulldown-cmark"
 homepage = "https://wasmer.io/"
 license = "MIT OR Apache-2.0"
-rust-version = "1.64.0"
+rust-version = "1.62.1"
 
 [package.metadata.wapm]
 namespace = "wasmer"
 abi = "none"
-bindings = { wit-bindgen = "0.1.0", wit-exports = "pulldown.wai" }
+bindings = { wai-version = "0.2.0", exports = "pulldown.wai" }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
