@@ -1,9 +1,8 @@
 use crate::pulldown::{
-    Alignment, CodeBlockKind, CowStr, Error, Event, HeadingLevel, LinkType, OffsetItem, Options,
-    Range, Tag,
+    Alignment, CodeBlockKind, Error, Event, HeadingLevel, LinkType, OffsetItem, Options, Range, Tag,
 };
 
-use original::{self, OffsetIter};
+use original::{self};
 
 wai_bindgen_rust::export!("pulldown.wai");
 
@@ -30,7 +29,6 @@ impl pulldown::Pulldown for Pulldown {
         let parser = original::Parser::new(&markdown_string);
         let mut html_buf = String::new();
         original::html::push_html(&mut html_buf, parser);
-        // println!("{:?}", html_buf);
         html_buf
     }
 
@@ -234,9 +232,7 @@ impl PartialEq<original::Event<'_>> for Event {
             (Self::Text(l0), original::Event::Text(r0)) => l0 == &r0.clone().into_string(),
             (Self::Code(l0), original::Event::Code(r0)) => l0 == &r0.clone().into_string(),
             (Self::Html(l0), original::Event::Html(r0)) => l0 == &r0.clone().into_string(),
-            (Self::FootnoteReference(l0), original::Event::FootnoteReference(r0)) => {
-                l0 == &r0.clone().into_string()
-            }
+            (Self::FootnoteReference(l0), original::Event::FootnoteReference(r0)) => l0 == &**r0,
             (Self::SoftBreak, original::Event::SoftBreak) => true,
             (Self::HardBreak, original::Event::HardBreak) => true,
             (Self::Rule, original::Event::Rule) => true,
@@ -251,17 +247,13 @@ impl PartialEq<original::Tag<'_>> for Tag {
         match (self, other) {
             (Self::Paragraph, original::Tag::Paragraph) => true,
             (Self::Heading(l0), original::Tag::Heading(r0, r1, r2)) => {
-                l0.0 == *r0
-                    && l0.1 == r1.map(str::to_string)
-                    && l0.2 == *r2.iter().map(|&s| String::from(s)).collect::<Vec<String>>()
+                l0.0 == *r0 && l0.1 == r1.map(str::to_string) && l0.2.iter().eq(r2)
             }
             (Self::BlockQuote, original::Tag::BlockQuote) => true,
             (Self::CodeBlock(l0), original::Tag::CodeBlock(r0)) => l0 == r0,
             (Self::ListTag(l0), original::Tag::List(r0)) => l0 == r0,
             (Self::Item, original::Tag::Item) => true,
-            (Self::FootnoteDefinition(l0), original::Tag::FootnoteDefinition(r0)) => {
-                l0 == &r0.clone().into_string()
-            }
+            (Self::FootnoteDefinition(l0), original::Tag::FootnoteDefinition(r0)) => l0 == &**r0,
             (Self::Table(l0), original::Tag::Table(r0)) => l0 == r0,
             (Self::TableHead, original::Tag::TableHead) => true,
             (Self::TableRow, original::Tag::TableRow) => true,
@@ -270,14 +262,10 @@ impl PartialEq<original::Tag<'_>> for Tag {
             (Self::Strong, original::Tag::Strong) => true,
             (Self::StrikeThrough, original::Tag::Strikethrough) => true,
             (Self::Link(l0), original::Tag::Link(r0_link_type, r0_cow_str_1, r0_cow_str_2)) => {
-                l0.0 == *r0_link_type
-                    && l0.1 == r0_cow_str_1.clone().into_string()
-                    && l0.2 == r0_cow_str_2.clone().into_string()
+                l0.0 == *r0_link_type && l0.1 == **r0_cow_str_1 && l0.2 == **r0_cow_str_2
             }
             (Self::Image(l0), original::Tag::Image(r0_link_type, r0_cow_str_1, r0_cow_str_2)) => {
-                l0.0 == *r0_link_type
-                    && l0.1 == r0_cow_str_1.clone().into_string()
-                    && l0.2 == r0_cow_str_2.clone().into_string()
+                l0.0 == *r0_link_type && l0.1 == **r0_cow_str_1 && l0.2 == **r0_cow_str_2
             }
             _ => false,
         }
@@ -325,9 +313,7 @@ impl PartialEq<original::LinkType> for LinkType {
 impl PartialEq<original::CodeBlockKind<'_>> for CodeBlockKind {
     fn eq(&self, other: &original::CodeBlockKind<'_>) -> bool {
         match (self, other) {
-            (Self::Fenced(l0), original::CodeBlockKind::Fenced(r0)) => {
-                l0 == &r0.clone().into_string()
-            }
+            (Self::Fenced(l0), original::CodeBlockKind::Fenced(r0)) => l0 == &**r0,
             _ => false,
         }
     }
@@ -350,8 +336,14 @@ impl PartialEq<original::HeadingLevel> for HeadingLevel {
 impl From<Range> for std::ops::Range<usize> {
     fn from(r: Range) -> Self {
         std::ops::Range {
-            start: r.start.try_into().unwrap(),
-            end: r.end.try_into().unwrap(),
+            start: r
+                .start
+                .try_into()
+                .expect("Conversion shouldn't never fail in practice"),
+            end: r
+                .end
+                .try_into()
+                .expect("Conversion shouldn't never fail in practice"),
         }
     }
 }
@@ -404,6 +396,7 @@ hello
             assert_eq!(a.1, b.1);
         }
     }
+
     #[test]
     fn html_test_1() {
         let original = r##"Little header
@@ -426,31 +419,6 @@ console.log("fooooo");
 </script>"##;
 
         let result = Pulldown::markdown_to_html(original.to_string());
-        assert_eq!(result, expected);
-    }
-    #[test]
-    fn html_test_2() {
-        let original_string = r##"Little header
-<script
-type="text/js">
-function some_func() {
-console.log("teeeest");
-}
-function another_func() {
-console.log("fooooo");
-}
-</script>"##;
-        let expected = r##"<p>Little header</p>
-<script
-type="text/js">
-function some_func() {
-console.log("teeeest");
-}
-function another_func() {
-console.log("fooooo");
-}
-</script>"##;
-        let result = Pulldown::markdown_to_html(original_string.to_string());
         assert_eq!(result, expected);
     }
 }
