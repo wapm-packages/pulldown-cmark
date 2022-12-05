@@ -47,7 +47,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --verbose --locked
+          args: --verbose
       - name: Build
         uses: actions-rs/cargo@v1
         with:
