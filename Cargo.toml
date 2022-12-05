@@ -2,9 +2,27 @@
 name = "pulldown-cmark"
 version = "0.1.0"
 edition = "2021"
+description = "pulldown_cmark for wasm, published on WAPM"
+authors = ["Wasmer Engineering Team <engineering@wasmer.io>"]
+repository = "https://github.com/wapm-packages/pulldown-cmark"
+homepage = "https://wasmer.io/"
+license = "MIT OR Apache-2.0"
+rust-version = "1.64.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package.metadata.wapm]
+namespace = "wasmer"
+abi = "none"
+bindings = { wit-bindgen = "0.1.0", wit-exports = "pulldown.wai" }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 wai-bindgen-rust = "0.2.1"
 original = {version ="0.9.2",package = "pulldown-cmark"}
+
+
+[dev-dependencies]
+tempfile = "3.3.0"
+tar = "0.4.38"
+flate2 = "1.0.24"
