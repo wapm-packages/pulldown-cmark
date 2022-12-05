@@ -1,0 +1,15 @@
+[package]
+name = "wasmer/pulldown-cmark"
+version = "0.1.0"
+description = "pulldown_cmark for wasm, published on WAPM"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/wapm-packages/pulldown-cmark"
+homepage = "https://wasmer.io/"
+
+[[module]]
+name = "pulldown-cmark"
+source = "pulldown_cmark.wasm"
+
+[module.bindings]
+wit-bindgen = "0.1.0"
+wit-exports = "pulldown.wai"

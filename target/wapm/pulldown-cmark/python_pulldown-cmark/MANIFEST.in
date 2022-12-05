@@ -1,0 +1,2 @@
+include pulldown_cmark/py.typed
+include pulldown_cmark/bindings/pulldown/*.wasm
