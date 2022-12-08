@@ -380,7 +380,7 @@ mod tests {
     use crate::pulldown::Pulldown as _;
 
     #[test]
-    fn convert_markdown_to_html_() {
+    fn convert_markdown_to_html() {
         let markdown_str = r#"
 hello
 =====
