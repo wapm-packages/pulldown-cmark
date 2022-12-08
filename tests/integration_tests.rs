@@ -1,10 +1,11 @@
-use std::{fs::File, path::Path, process::Command};
+use std::{path::Path, process::Command};
 use tempfile::tempdir;
 
-use flate2::write::GzEncoder;
-use flate2::Compression;
-
 #[test]
+#[cfg_attr(
+    windows,
+    ignore = "wasmer run cannot map absolute directories on windows"
+)]
 fn integration_tests() {
     let package_name = "pulldown-cmark";
     let wapm_out = Command::new("cargo")
@@ -24,9 +25,6 @@ fn integration_tests() {
         "{}",
         format!("wapm-dir for {} not found", package_name)
     );
-
-    //wasmer run wasmer-pack --mapdir .:$WAPM_DIR -- python . --out-dir ./python
-    //wasmer run wasmer/wasmer-pack-cli@0.5.3 --dir . -- javascript ./pulldown-cmark --out-dir js
 
     let python_package_dir = temp_dir.path().join("python");
     // Wasmer-pack for generating python bindings
