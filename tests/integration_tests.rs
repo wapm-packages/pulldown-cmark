@@ -17,7 +17,7 @@ fn integration_tests() {
     let temp_dir = tempdir().unwrap();
 
     let project_dir_path = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let wapm_dir = project_dir_path.join(format!("target/wapm/{}", package_name));
+    let wapm_dir = project_dir_path.join("target/wapm");
 
     assert!(
         wapm_dir.exists(),
@@ -25,60 +25,52 @@ fn integration_tests() {
         format!("wapm-dir for {} not found", package_name)
     );
 
-    // Create tar.gz
-    let tar_gz = File::create(temp_dir.path().join(format!("{}.tar.gz", package_name))).unwrap();
-    let enc = GzEncoder::new(tar_gz, Compression::default());
-    let mut tar = tar::Builder::new(enc);
-    tar.append_dir_all(".", &wapm_dir).unwrap();
-    tar.into_inner()
-        .expect("Unable to finalise the tar archive")
-        .finish()
-        .expect("Unable to finalize the gzip encoder");
+    //wasmer run wasmer-pack --mapdir .:$WAPM_DIR -- python . --out-dir ./python
+    //wasmer run wasmer/wasmer-pack-cli@0.5.3 --dir . -- javascript ./pulldown-cmark --out-dir js
 
-    // Wasm to pirita convert
-    let w2p_out = Command::new("wasmer")
-        .current_dir(temp_dir.path())
-        .args([
-            "run",
-            "wapm2pirita",
-            "--mapdir",
-            format!(".::{}", temp_dir.path().display()).as_str(),
-            "--",
-            "convert",
-        ])
-        .arg(format!("{}.tar.gz", package_name))
-        .arg(format!("{}.webc", package_name))
-        .output()
-        .expect("wapm2pirita command failed to execute");
-
-    assert!(w2p_out.status.success(), "{w2p_out:?}");
-
+    let python_package_dir = temp_dir.path().join("python");
     // Wasmer-pack for generating python bindings
-    let wasmer_pack_out = Command::new("wasmer")
-        .current_dir(temp_dir.path())
-        .args([
-            "run",
-            "wasmer-pack",
-            "--mapdir",
-            format!("f::{}", temp_dir.path().display()).as_str(),
-            "--",
-            "python",
-            &format!("f/{}.webc", package_name),
-            "--out-dir",
-            &format!("f/python_{}", package_name),
-        ])
+    let output = Command::new("wasmer")
+        .current_dir(&wapm_dir)
+        .arg("run")
+        .arg("wasmer/wasmer-pack-cli@0.5.3")
+        .arg("--dir")
+        .arg(temp_dir.path())
+        .arg("--dir")
+        .arg(&wapm_dir)
+        .arg("--")
+        .arg("python")
+        .arg(wapm_dir.join(package_name))
+        .arg("--out-dir")
+        .arg(&python_package_dir)
         .output()
-        .expect("wasmer-pack failed to create python binding");
+        .expect("Unable to start wasmer pack. Is it installed ?");
 
-    assert!(wasmer_pack_out.status.success(), "{wasmer_pack_out:?}");
+    assert!(output.status.success(), "{output:?}");
 
-    // check python sha2 dir
-    let python_pkg_dir = temp_dir.path().join(format!("python_{}", package_name));
-    assert!(python_pkg_dir.exists());
+    let js_package_dir = temp_dir.path().join("js");
+    // generate javascript bindings for the package
+    let output = Command::new("wasmer")
+        .current_dir(&wapm_dir)
+        .arg("run")
+        .arg("wasmer/wasmer-pack-cli@0.5.3")
+        .arg("--dir")
+        .arg(temp_dir.path())
+        .arg("--dir")
+        .arg(&wapm_dir)
+        .arg("--")
+        .arg("js")
+        .arg(wapm_dir.join(package_name))
+        .arg("--out-dir")
+        .arg(js_package_dir)
+        .output()
+        .expect("Unable to start wasmer pack. Is it installed ?");
+
+    assert!(output.status.success(), "{output:?}");
 
     // create python environment
     let python_env_creation_out = Command::new("python")
-        .current_dir(&python_pkg_dir)
+        .current_dir(&python_package_dir)
         .args(["-m", "venv", "env"])
         .output()
         .expect("Python environment creation failed");
@@ -93,11 +85,11 @@ fn integration_tests() {
     assert!(pytest_dir.exists(), "Error: No test directory found");
 
     if cfg!(target_os = "windows") {
-        let python_pkg_env_dir = python_pkg_dir.join("env").join("Scripts");
+        let python_pkg_env_dir = python_package_dir.join("env").join("Scripts");
 
         // install packages in environment using pip
         let pip_out = Command::new("cmd")
-            .current_dir(&python_pkg_dir)
+            .current_dir(&python_package_dir)
             .args([
                 "/C",
                 format!("{}", python_pkg_env_dir.join("pip.exe").display()).as_str(),
@@ -122,7 +114,7 @@ fn integration_tests() {
         assert!(pytest_out.status.success(), "{pytest_out:?}");
     } else {
         let pip_out = Command::new("./env/bin/pip")
-            .current_dir(&python_pkg_dir)
+            .current_dir(&python_package_dir)
             .args(["install", ".", "pytest"])
             .output()
             .expect("msg");
@@ -131,7 +123,7 @@ fn integration_tests() {
 
         // Run the python tests using pytest and record output
         let pytest_out = Command::new("./env/bin/pytest")
-            .current_dir(&python_pkg_dir)
+            .current_dir(&python_package_dir)
             .arg(pytest_dir.join("main.py"))
             .output()
             .expect("msg");
