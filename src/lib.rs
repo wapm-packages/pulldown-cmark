@@ -227,16 +227,24 @@ impl PartialEq<std::ops::Range<usize>> for pulldown::Range {
 impl PartialEq<original::Event<'_>> for Event {
     fn eq(&self, other: &original::Event<'_>) -> bool {
         match (self, other) {
-            (Self::Start(l0), original::Event::Start(r0)) => l0 == r0,
-            (Self::End(l0), original::Event::End(r0)) => l0 == r0,
-            (Self::Text(l0), original::Event::Text(r0)) => l0 == &r0.clone().into_string(),
-            (Self::Code(l0), original::Event::Code(r0)) => l0 == &r0.clone().into_string(),
-            (Self::Html(l0), original::Event::Html(r0)) => l0 == &r0.clone().into_string(),
-            (Self::FootnoteReference(l0), original::Event::FootnoteReference(r0)) => l0 == &**r0,
+            (Self::Start(left), original::Event::Start(right)) => left == right,
+            (Self::End(left), original::Event::End(right)) => left == right,
+            (Self::Text(left), original::Event::Text(right)) => {
+                left == &right.clone().into_string()
+            }
+            (Self::Code(left), original::Event::Code(right)) => {
+                left == &right.clone().into_string()
+            }
+            (Self::Html(left), original::Event::Html(right)) => {
+                left == &right.clone().into_string()
+            }
+            (Self::FootnoteReference(left), original::Event::FootnoteReference(right)) => {
+                left == &**right
+            }
             (Self::SoftBreak, original::Event::SoftBreak) => true,
             (Self::HardBreak, original::Event::HardBreak) => true,
             (Self::Rule, original::Event::Rule) => true,
-            (Self::TaskListMarker(l0), original::Event::TaskListMarker(r0)) => l0 == r0,
+            (Self::TaskListMarker(left), original::Event::TaskListMarker(right)) => left == right,
             _ => false,
         }
     }
@@ -246,26 +254,43 @@ impl PartialEq<original::Tag<'_>> for Tag {
     fn eq(&self, other: &original::Tag<'_>) -> bool {
         match (self, other) {
             (Self::Paragraph, original::Tag::Paragraph) => true,
-            (Self::Heading(l0), original::Tag::Heading(r0, r1, r2)) => {
-                l0.0 == *r0 && l0.1 == r1.map(str::to_string) && l0.2.iter().eq(r2)
+            (
+                Self::Heading(left),
+                original::Tag::Heading(right_level, right_fragment_identifier, right_classes),
+            ) => {
+                left.0 == *right_level
+                    && left.1 == right_fragment_identifier.map(str::to_string)
+                    && left.2.iter().eq(right_classes)
             }
             (Self::BlockQuote, original::Tag::BlockQuote) => true,
-            (Self::CodeBlock(l0), original::Tag::CodeBlock(r0)) => l0 == r0,
-            (Self::ListTag(l0), original::Tag::List(r0)) => l0 == r0,
+            (Self::CodeBlock(left), original::Tag::CodeBlock(right)) => left == right,
+            (Self::ListTag(left), original::Tag::List(right)) => left == right,
             (Self::Item, original::Tag::Item) => true,
-            (Self::FootnoteDefinition(l0), original::Tag::FootnoteDefinition(r0)) => l0 == &**r0,
-            (Self::Table(l0), original::Tag::Table(r0)) => l0 == r0,
+            (Self::FootnoteDefinition(left), original::Tag::FootnoteDefinition(right)) => {
+                left == &**right
+            }
+            (Self::Table(left), original::Tag::Table(right)) => left == right,
             (Self::TableHead, original::Tag::TableHead) => true,
             (Self::TableRow, original::Tag::TableRow) => true,
             (Self::TableCell, original::Tag::TableCell) => true,
             (Self::Emphasis, original::Tag::Emphasis) => true,
             (Self::Strong, original::Tag::Strong) => true,
             (Self::StrikeThrough, original::Tag::Strikethrough) => true,
-            (Self::Link(l0), original::Tag::Link(r0_link_type, r0_cow_str_1, r0_cow_str_2)) => {
-                l0.0 == *r0_link_type && l0.1 == **r0_cow_str_1 && l0.2 == **r0_cow_str_2
+            (
+                Self::Link(left),
+                original::Tag::Link(right_link_type, right_destination_url, right_title),
+            ) => {
+                left.0 == *right_link_type
+                    && left.1 == **right_destination_url
+                    && left.2 == **right_title
             }
-            (Self::Image(l0), original::Tag::Image(r0_link_type, r0_cow_str_1, r0_cow_str_2)) => {
-                l0.0 == *r0_link_type && l0.1 == **r0_cow_str_1 && l0.2 == **r0_cow_str_2
+            (
+                Self::Image(left),
+                original::Tag::Image(right_link_type, right_destination_url, right_title),
+            ) => {
+                left.0 == *right_link_type
+                    && left.1 == **right_destination_url
+                    && left.2 == **right_title
             }
             _ => false,
         }
@@ -313,7 +338,8 @@ impl PartialEq<original::LinkType> for LinkType {
 impl PartialEq<original::CodeBlockKind<'_>> for CodeBlockKind {
     fn eq(&self, other: &original::CodeBlockKind<'_>) -> bool {
         match (self, other) {
-            (Self::Fenced(l0), original::CodeBlockKind::Fenced(r0)) => l0 == &**r0,
+            (Self::Fenced(left), original::CodeBlockKind::Fenced(right)) => left == &**right,
+            (Self::Indented, original::CodeBlockKind::Indented) => true,
             _ => false,
         }
     }
