@@ -19,10 +19,14 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 wai-bindgen-rust = "0.2.1"
-original = {version ="0.9.2",package = "pulldown-cmark"}
+original = { version = "0.9.2", package = "pulldown-cmark" }
 
 
 [dev-dependencies]
-tempfile = "3.3.0"
-tar = "0.4.38"
-flate2 = "1.0.24"
+anyhow = "1.0.68"
+tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
+wasmer-pack-testing = "0.6.0"
+
+[[test]]
+name = "pulldown-integration-tests"
+harness = false

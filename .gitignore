@@ -1,2 +1,6 @@
 /target
 .vscode
+
+
+node_modules/
+generated_bindings/

@@ -1,0 +1,1923 @@
+---
+source: /Users/xorcist/.cargo/registry/src/github.com-1ecc6299db9ec823/wasmer-pack-testing-0.6.0/src/autodiscover.rs
+---
+const { data_view, validate_flags, UTF8_DECODER, utf8_encode, utf8_encoded_len, throw_invalid_bool } = require('./intrinsics.js');
+const OPTIONS_ENABLE_TABLES = 1;
+const OPTIONS_ENABLE_FOOTNOTES = 2;
+const OPTIONS_ENABLE_STRIKETHROUGH = 4;
+const OPTIONS_ENABLE_TASKLISTS = 8;
+const OPTIONS_ENABLE_SMART_PUNCTUATION = 16;
+const OPTIONS_ENABLE_HEADING_ATTRIBUTES = 32;
+class Pulldown {
+  addToImports(imports) {
+  }
+  
+  async instantiate(module, imports) {
+    imports = imports || {};
+    this.addToImports(imports);
+    
+    if (module instanceof WebAssembly.Instance) {
+      this.instance = module;
+    } else if (module instanceof WebAssembly.Module) {
+      this.instance = await WebAssembly.instantiate(module, imports);
+    } else if (module instanceof ArrayBuffer || module instanceof Uint8Array) {
+      const { instance } = await WebAssembly.instantiate(module, imports);
+      this.instance = instance;
+    } else {
+      const { instance } = await WebAssembly.instantiateStreaming(module, imports);
+      this.instance = instance;
+    }
+    this._exports = this.instance.exports;
+  }
+  escapeHref(arg0) {
+    const memory = this._exports.memory;
+    const realloc = this._exports["canonical_abi_realloc"];
+    const free = this._exports["canonical_abi_free"];
+    const ptr0 = utf8_encode(arg0, realloc, memory);
+    const len0 = utf8_encoded_len();
+    const ret = this._exports['escape-href'](ptr0, len0);
+    
+    let variant3;
+    switch (data_view(memory).getUint8(ret + 0, true)) {
+      case 0: {
+        const ptr1 = data_view(memory).getInt32(ret + 4, true);
+        const len1 = data_view(memory).getInt32(ret + 8, true);
+        const list1 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr1, len1));
+        free(ptr1, len1, 1);
+        
+        variant3 = { tag: "ok", val: list1 };
+        break;
+      }
+      case 1: {
+        const ptr2 = data_view(memory).getInt32(ret + 4, true);
+        const len2 = data_view(memory).getInt32(ret + 8, true);
+        const list2 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr2, len2));
+        free(ptr2, len2, 1);
+        
+        variant3 = { tag: "err", val: {
+          message: list2,
+        } };
+        break;
+      }
+      default: {
+        throw new RangeError("invalid variant discriminant for expected");
+      }
+    }
+    return variant3;
+  }
+  escapeHtml(arg0) {
+    const memory = this._exports.memory;
+    const realloc = this._exports["canonical_abi_realloc"];
+    const free = this._exports["canonical_abi_free"];
+    const ptr0 = utf8_encode(arg0, realloc, memory);
+    const len0 = utf8_encoded_len();
+    const ret = this._exports['escape-html'](ptr0, len0);
+    
+    let variant3;
+    switch (data_view(memory).getUint8(ret + 0, true)) {
+      case 0: {
+        const ptr1 = data_view(memory).getInt32(ret + 4, true);
+        const len1 = data_view(memory).getInt32(ret + 8, true);
+        const list1 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr1, len1));
+        free(ptr1, len1, 1);
+        
+        variant3 = { tag: "ok", val: list1 };
+        break;
+      }
+      case 1: {
+        const ptr2 = data_view(memory).getInt32(ret + 4, true);
+        const len2 = data_view(memory).getInt32(ret + 8, true);
+        const list2 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr2, len2));
+        free(ptr2, len2, 1);
+        
+        variant3 = { tag: "err", val: {
+          message: list2,
+        } };
+        break;
+      }
+      default: {
+        throw new RangeError("invalid variant discriminant for expected");
+      }
+    }
+    return variant3;
+  }
+  markdownToHtml(arg0) {
+    const memory = this._exports.memory;
+    const realloc = this._exports["canonical_abi_realloc"];
+    const free = this._exports["canonical_abi_free"];
+    const ptr0 = utf8_encode(arg0, realloc, memory);
+    const len0 = utf8_encoded_len();
+    const ret = this._exports['markdown-to-html'](ptr0, len0);
+    const ptr1 = data_view(memory).getInt32(ret + 0, true);
+    const len1 = data_view(memory).getInt32(ret + 4, true);
+    const list1 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr1, len1));
+    free(ptr1, len1, 1);
+    return list1;
+  }
+  parse(arg0) {
+    const memory = this._exports.memory;
+    const realloc = this._exports["canonical_abi_realloc"];
+    const free = this._exports["canonical_abi_free"];
+    const ptr0 = utf8_encode(arg0, realloc, memory);
+    const len0 = utf8_encoded_len();
+    const ret = this._exports['parse'](ptr0, len0);
+    const len43 = data_view(memory).getInt32(ret + 4, true);
+    const base43 = data_view(memory).getInt32(ret + 0, true);
+    const result43 = [];
+    for (let i = 0; i < len43; i++) {
+      const base = base43 + i * 48;
+      let variant42;
+      switch (data_view(memory).getUint8(base + 0, true)) {
+        case 0: {
+          let variant18;
+          switch (data_view(memory).getUint8(base + 8, true)) {
+            case 0: {
+              variant18 = {
+                tag: "paragraph",
+              };
+              break;
+            }
+            case 1: {
+              let variant1;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant1 = {
+                    tag: "h1",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant1 = {
+                    tag: "h2",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant1 = {
+                    tag: "h3",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant1 = {
+                    tag: "h4",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant1 = {
+                    tag: "h5",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant1 = {
+                    tag: "h6",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for HeadingLevel");
+              }
+              let variant3;
+              switch (data_view(memory).getUint8(base + 20, true)) {
+                
+                case 0: {
+                  
+                  variant3 = null;
+                  break;
+                }
+                case 1: {
+                  const ptr2 = data_view(memory).getInt32(base + 24, true);
+                  const len2 = data_view(memory).getInt32(base + 28, true);
+                  const list2 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr2, len2));
+                  free(ptr2, len2, 1);
+                  
+                  variant3 = list2;
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              const len5 = data_view(memory).getInt32(base + 36, true);
+              const base5 = data_view(memory).getInt32(base + 32, true);
+              const result5 = [];
+              for (let i = 0; i < len5; i++) {
+                const base = base5 + i * 8;
+                const ptr4 = data_view(memory).getInt32(base + 0, true);
+                const len4 = data_view(memory).getInt32(base + 4, true);
+                const list4 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr4, len4));
+                free(ptr4, len4, 1);
+                result5.push(list4);
+              }
+              free(base5, len5 * 8, 4);
+              variant18 = {
+                tag: "heading",
+                val: [variant1, variant3, result5],
+              };
+              break;
+            }
+            case 2: {
+              variant18 = {
+                tag: "block-quote",
+              };
+              break;
+            }
+            case 3: {
+              let variant7;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant7 = {
+                    tag: "indented",
+                  };
+                  break;
+                }
+                case 1: {
+                  const ptr6 = data_view(memory).getInt32(base + 20, true);
+                  const len6 = data_view(memory).getInt32(base + 24, true);
+                  const list6 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr6, len6));
+                  free(ptr6, len6, 1);
+                  variant7 = {
+                    tag: "fenced",
+                    val: list6,
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for CodeBlockKind");
+              }
+              variant18 = {
+                tag: "code-block",
+                val: variant7,
+              };
+              break;
+            }
+            case 4: {
+              let variant8;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                
+                case 0: {
+                  
+                  variant8 = null;
+                  break;
+                }
+                case 1: {
+                  
+                  variant8 = BigInt.asUintN(64, data_view(memory).getBigInt64(base + 24, true));
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              variant18 = {
+                tag: "list-tag",
+                val: variant8,
+              };
+              break;
+            }
+            case 5: {
+              variant18 = {
+                tag: "item",
+              };
+              break;
+            }
+            case 6: {
+              const ptr9 = data_view(memory).getInt32(base + 16, true);
+              const len9 = data_view(memory).getInt32(base + 20, true);
+              const list9 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr9, len9));
+              free(ptr9, len9, 1);
+              variant18 = {
+                tag: "footnote-definition",
+                val: list9,
+              };
+              break;
+            }
+            case 7: {
+              const len11 = data_view(memory).getInt32(base + 20, true);
+              const base11 = data_view(memory).getInt32(base + 16, true);
+              const result11 = [];
+              for (let i = 0; i < len11; i++) {
+                const base = base11 + i * 1;
+                let variant10;
+                switch (data_view(memory).getUint8(base + 0, true)) {
+                  case 0: {
+                    variant10 = {
+                      tag: "none",
+                    };
+                    break;
+                  }
+                  case 1: {
+                    variant10 = {
+                      tag: "left",
+                    };
+                    break;
+                  }
+                  case 2: {
+                    variant10 = {
+                      tag: "center",
+                    };
+                    break;
+                  }
+                  case 3: {
+                    variant10 = {
+                      tag: "right",
+                    };
+                    break;
+                  }
+                  default:
+                  throw new RangeError("invalid variant discriminant for Alignment");
+                }
+                result11.push(variant10);
+              }
+              free(base11, len11 * 1, 1);
+              variant18 = {
+                tag: "table",
+                val: result11,
+              };
+              break;
+            }
+            case 8: {
+              variant18 = {
+                tag: "table-head",
+              };
+              break;
+            }
+            case 9: {
+              variant18 = {
+                tag: "table-row",
+              };
+              break;
+            }
+            case 10: {
+              variant18 = {
+                tag: "table-cell",
+              };
+              break;
+            }
+            case 11: {
+              variant18 = {
+                tag: "emphasis",
+              };
+              break;
+            }
+            case 12: {
+              variant18 = {
+                tag: "strong",
+              };
+              break;
+            }
+            case 13: {
+              variant18 = {
+                tag: "strike-through",
+              };
+              break;
+            }
+            case 14: {
+              let variant12;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant12 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant12 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant12 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant12 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant12 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant12 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant12 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant12 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant12 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr13 = data_view(memory).getInt32(base + 20, true);
+              const len13 = data_view(memory).getInt32(base + 24, true);
+              const list13 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr13, len13));
+              free(ptr13, len13, 1);
+              const ptr14 = data_view(memory).getInt32(base + 28, true);
+              const len14 = data_view(memory).getInt32(base + 32, true);
+              const list14 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr14, len14));
+              free(ptr14, len14, 1);
+              variant18 = {
+                tag: "link",
+                val: [variant12, list13, list14],
+              };
+              break;
+            }
+            case 15: {
+              let variant15;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant15 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant15 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant15 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant15 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant15 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant15 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant15 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant15 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant15 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr16 = data_view(memory).getInt32(base + 20, true);
+              const len16 = data_view(memory).getInt32(base + 24, true);
+              const list16 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr16, len16));
+              free(ptr16, len16, 1);
+              const ptr17 = data_view(memory).getInt32(base + 28, true);
+              const len17 = data_view(memory).getInt32(base + 32, true);
+              const list17 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr17, len17));
+              free(ptr17, len17, 1);
+              variant18 = {
+                tag: "image",
+                val: [variant15, list16, list17],
+              };
+              break;
+            }
+            default:
+            throw new RangeError("invalid variant discriminant for Tag");
+          }
+          variant42 = {
+            tag: "start",
+            val: variant18,
+          };
+          break;
+        }
+        case 1: {
+          let variant36;
+          switch (data_view(memory).getUint8(base + 8, true)) {
+            case 0: {
+              variant36 = {
+                tag: "paragraph",
+              };
+              break;
+            }
+            case 1: {
+              let variant19;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant19 = {
+                    tag: "h1",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant19 = {
+                    tag: "h2",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant19 = {
+                    tag: "h3",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant19 = {
+                    tag: "h4",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant19 = {
+                    tag: "h5",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant19 = {
+                    tag: "h6",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for HeadingLevel");
+              }
+              let variant21;
+              switch (data_view(memory).getUint8(base + 20, true)) {
+                
+                case 0: {
+                  
+                  variant21 = null;
+                  break;
+                }
+                case 1: {
+                  const ptr20 = data_view(memory).getInt32(base + 24, true);
+                  const len20 = data_view(memory).getInt32(base + 28, true);
+                  const list20 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr20, len20));
+                  free(ptr20, len20, 1);
+                  
+                  variant21 = list20;
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              const len23 = data_view(memory).getInt32(base + 36, true);
+              const base23 = data_view(memory).getInt32(base + 32, true);
+              const result23 = [];
+              for (let i = 0; i < len23; i++) {
+                const base = base23 + i * 8;
+                const ptr22 = data_view(memory).getInt32(base + 0, true);
+                const len22 = data_view(memory).getInt32(base + 4, true);
+                const list22 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr22, len22));
+                free(ptr22, len22, 1);
+                result23.push(list22);
+              }
+              free(base23, len23 * 8, 4);
+              variant36 = {
+                tag: "heading",
+                val: [variant19, variant21, result23],
+              };
+              break;
+            }
+            case 2: {
+              variant36 = {
+                tag: "block-quote",
+              };
+              break;
+            }
+            case 3: {
+              let variant25;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant25 = {
+                    tag: "indented",
+                  };
+                  break;
+                }
+                case 1: {
+                  const ptr24 = data_view(memory).getInt32(base + 20, true);
+                  const len24 = data_view(memory).getInt32(base + 24, true);
+                  const list24 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr24, len24));
+                  free(ptr24, len24, 1);
+                  variant25 = {
+                    tag: "fenced",
+                    val: list24,
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for CodeBlockKind");
+              }
+              variant36 = {
+                tag: "code-block",
+                val: variant25,
+              };
+              break;
+            }
+            case 4: {
+              let variant26;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                
+                case 0: {
+                  
+                  variant26 = null;
+                  break;
+                }
+                case 1: {
+                  
+                  variant26 = BigInt.asUintN(64, data_view(memory).getBigInt64(base + 24, true));
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              variant36 = {
+                tag: "list-tag",
+                val: variant26,
+              };
+              break;
+            }
+            case 5: {
+              variant36 = {
+                tag: "item",
+              };
+              break;
+            }
+            case 6: {
+              const ptr27 = data_view(memory).getInt32(base + 16, true);
+              const len27 = data_view(memory).getInt32(base + 20, true);
+              const list27 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr27, len27));
+              free(ptr27, len27, 1);
+              variant36 = {
+                tag: "footnote-definition",
+                val: list27,
+              };
+              break;
+            }
+            case 7: {
+              const len29 = data_view(memory).getInt32(base + 20, true);
+              const base29 = data_view(memory).getInt32(base + 16, true);
+              const result29 = [];
+              for (let i = 0; i < len29; i++) {
+                const base = base29 + i * 1;
+                let variant28;
+                switch (data_view(memory).getUint8(base + 0, true)) {
+                  case 0: {
+                    variant28 = {
+                      tag: "none",
+                    };
+                    break;
+                  }
+                  case 1: {
+                    variant28 = {
+                      tag: "left",
+                    };
+                    break;
+                  }
+                  case 2: {
+                    variant28 = {
+                      tag: "center",
+                    };
+                    break;
+                  }
+                  case 3: {
+                    variant28 = {
+                      tag: "right",
+                    };
+                    break;
+                  }
+                  default:
+                  throw new RangeError("invalid variant discriminant for Alignment");
+                }
+                result29.push(variant28);
+              }
+              free(base29, len29 * 1, 1);
+              variant36 = {
+                tag: "table",
+                val: result29,
+              };
+              break;
+            }
+            case 8: {
+              variant36 = {
+                tag: "table-head",
+              };
+              break;
+            }
+            case 9: {
+              variant36 = {
+                tag: "table-row",
+              };
+              break;
+            }
+            case 10: {
+              variant36 = {
+                tag: "table-cell",
+              };
+              break;
+            }
+            case 11: {
+              variant36 = {
+                tag: "emphasis",
+              };
+              break;
+            }
+            case 12: {
+              variant36 = {
+                tag: "strong",
+              };
+              break;
+            }
+            case 13: {
+              variant36 = {
+                tag: "strike-through",
+              };
+              break;
+            }
+            case 14: {
+              let variant30;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant30 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant30 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant30 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant30 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant30 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant30 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant30 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant30 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant30 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr31 = data_view(memory).getInt32(base + 20, true);
+              const len31 = data_view(memory).getInt32(base + 24, true);
+              const list31 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr31, len31));
+              free(ptr31, len31, 1);
+              const ptr32 = data_view(memory).getInt32(base + 28, true);
+              const len32 = data_view(memory).getInt32(base + 32, true);
+              const list32 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr32, len32));
+              free(ptr32, len32, 1);
+              variant36 = {
+                tag: "link",
+                val: [variant30, list31, list32],
+              };
+              break;
+            }
+            case 15: {
+              let variant33;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant33 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant33 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant33 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant33 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant33 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant33 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant33 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant33 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant33 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr34 = data_view(memory).getInt32(base + 20, true);
+              const len34 = data_view(memory).getInt32(base + 24, true);
+              const list34 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr34, len34));
+              free(ptr34, len34, 1);
+              const ptr35 = data_view(memory).getInt32(base + 28, true);
+              const len35 = data_view(memory).getInt32(base + 32, true);
+              const list35 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr35, len35));
+              free(ptr35, len35, 1);
+              variant36 = {
+                tag: "image",
+                val: [variant33, list34, list35],
+              };
+              break;
+            }
+            default:
+            throw new RangeError("invalid variant discriminant for Tag");
+          }
+          variant42 = {
+            tag: "end",
+            val: variant36,
+          };
+          break;
+        }
+        case 2: {
+          const ptr37 = data_view(memory).getInt32(base + 8, true);
+          const len37 = data_view(memory).getInt32(base + 12, true);
+          const list37 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr37, len37));
+          free(ptr37, len37, 1);
+          variant42 = {
+            tag: "text",
+            val: list37,
+          };
+          break;
+        }
+        case 3: {
+          const ptr38 = data_view(memory).getInt32(base + 8, true);
+          const len38 = data_view(memory).getInt32(base + 12, true);
+          const list38 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr38, len38));
+          free(ptr38, len38, 1);
+          variant42 = {
+            tag: "code",
+            val: list38,
+          };
+          break;
+        }
+        case 4: {
+          const ptr39 = data_view(memory).getInt32(base + 8, true);
+          const len39 = data_view(memory).getInt32(base + 12, true);
+          const list39 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr39, len39));
+          free(ptr39, len39, 1);
+          variant42 = {
+            tag: "html",
+            val: list39,
+          };
+          break;
+        }
+        case 5: {
+          const ptr40 = data_view(memory).getInt32(base + 8, true);
+          const len40 = data_view(memory).getInt32(base + 12, true);
+          const list40 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr40, len40));
+          free(ptr40, len40, 1);
+          variant42 = {
+            tag: "footnote-reference",
+            val: list40,
+          };
+          break;
+        }
+        case 6: {
+          variant42 = {
+            tag: "soft-break",
+          };
+          break;
+        }
+        case 7: {
+          variant42 = {
+            tag: "hard-break",
+          };
+          break;
+        }
+        case 8: {
+          variant42 = {
+            tag: "rule",
+          };
+          break;
+        }
+        case 9: {
+          const bool41 = data_view(memory).getUint8(base + 8, true);
+          variant42 = {
+            tag: "task-list-marker",
+            val: bool41 == 0 ? false : (bool41 == 1 ? true : throw_invalid_bool()),
+          };
+          break;
+        }
+        default:
+        throw new RangeError("invalid variant discriminant for Event");
+      }
+      result43.push([variant42, {
+        start: data_view(memory).getInt32(base + 36, true) >>> 0,
+        end: data_view(memory).getInt32(base + 40, true) >>> 0,
+      }]);
+    }
+    free(base43, len43 * 48, 8);
+    return result43;
+  }
+  parseWithOptions(arg0, arg1) {
+    const memory = this._exports.memory;
+    const realloc = this._exports["canonical_abi_realloc"];
+    const free = this._exports["canonical_abi_free"];
+    const ptr0 = utf8_encode(arg0, realloc, memory);
+    const len0 = utf8_encoded_len();
+    const flags1 = validate_flags(arg1, 63);
+    const ret = this._exports['parse-with-options'](ptr0, len0, flags1);
+    const len44 = data_view(memory).getInt32(ret + 4, true);
+    const base44 = data_view(memory).getInt32(ret + 0, true);
+    const result44 = [];
+    for (let i = 0; i < len44; i++) {
+      const base = base44 + i * 48;
+      let variant43;
+      switch (data_view(memory).getUint8(base + 0, true)) {
+        case 0: {
+          let variant19;
+          switch (data_view(memory).getUint8(base + 8, true)) {
+            case 0: {
+              variant19 = {
+                tag: "paragraph",
+              };
+              break;
+            }
+            case 1: {
+              let variant2;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant2 = {
+                    tag: "h1",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant2 = {
+                    tag: "h2",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant2 = {
+                    tag: "h3",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant2 = {
+                    tag: "h4",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant2 = {
+                    tag: "h5",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant2 = {
+                    tag: "h6",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for HeadingLevel");
+              }
+              let variant4;
+              switch (data_view(memory).getUint8(base + 20, true)) {
+                
+                case 0: {
+                  
+                  variant4 = null;
+                  break;
+                }
+                case 1: {
+                  const ptr3 = data_view(memory).getInt32(base + 24, true);
+                  const len3 = data_view(memory).getInt32(base + 28, true);
+                  const list3 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr3, len3));
+                  free(ptr3, len3, 1);
+                  
+                  variant4 = list3;
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              const len6 = data_view(memory).getInt32(base + 36, true);
+              const base6 = data_view(memory).getInt32(base + 32, true);
+              const result6 = [];
+              for (let i = 0; i < len6; i++) {
+                const base = base6 + i * 8;
+                const ptr5 = data_view(memory).getInt32(base + 0, true);
+                const len5 = data_view(memory).getInt32(base + 4, true);
+                const list5 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr5, len5));
+                free(ptr5, len5, 1);
+                result6.push(list5);
+              }
+              free(base6, len6 * 8, 4);
+              variant19 = {
+                tag: "heading",
+                val: [variant2, variant4, result6],
+              };
+              break;
+            }
+            case 2: {
+              variant19 = {
+                tag: "block-quote",
+              };
+              break;
+            }
+            case 3: {
+              let variant8;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant8 = {
+                    tag: "indented",
+                  };
+                  break;
+                }
+                case 1: {
+                  const ptr7 = data_view(memory).getInt32(base + 20, true);
+                  const len7 = data_view(memory).getInt32(base + 24, true);
+                  const list7 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr7, len7));
+                  free(ptr7, len7, 1);
+                  variant8 = {
+                    tag: "fenced",
+                    val: list7,
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for CodeBlockKind");
+              }
+              variant19 = {
+                tag: "code-block",
+                val: variant8,
+              };
+              break;
+            }
+            case 4: {
+              let variant9;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                
+                case 0: {
+                  
+                  variant9 = null;
+                  break;
+                }
+                case 1: {
+                  
+                  variant9 = BigInt.asUintN(64, data_view(memory).getBigInt64(base + 24, true));
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              variant19 = {
+                tag: "list-tag",
+                val: variant9,
+              };
+              break;
+            }
+            case 5: {
+              variant19 = {
+                tag: "item",
+              };
+              break;
+            }
+            case 6: {
+              const ptr10 = data_view(memory).getInt32(base + 16, true);
+              const len10 = data_view(memory).getInt32(base + 20, true);
+              const list10 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr10, len10));
+              free(ptr10, len10, 1);
+              variant19 = {
+                tag: "footnote-definition",
+                val: list10,
+              };
+              break;
+            }
+            case 7: {
+              const len12 = data_view(memory).getInt32(base + 20, true);
+              const base12 = data_view(memory).getInt32(base + 16, true);
+              const result12 = [];
+              for (let i = 0; i < len12; i++) {
+                const base = base12 + i * 1;
+                let variant11;
+                switch (data_view(memory).getUint8(base + 0, true)) {
+                  case 0: {
+                    variant11 = {
+                      tag: "none",
+                    };
+                    break;
+                  }
+                  case 1: {
+                    variant11 = {
+                      tag: "left",
+                    };
+                    break;
+                  }
+                  case 2: {
+                    variant11 = {
+                      tag: "center",
+                    };
+                    break;
+                  }
+                  case 3: {
+                    variant11 = {
+                      tag: "right",
+                    };
+                    break;
+                  }
+                  default:
+                  throw new RangeError("invalid variant discriminant for Alignment");
+                }
+                result12.push(variant11);
+              }
+              free(base12, len12 * 1, 1);
+              variant19 = {
+                tag: "table",
+                val: result12,
+              };
+              break;
+            }
+            case 8: {
+              variant19 = {
+                tag: "table-head",
+              };
+              break;
+            }
+            case 9: {
+              variant19 = {
+                tag: "table-row",
+              };
+              break;
+            }
+            case 10: {
+              variant19 = {
+                tag: "table-cell",
+              };
+              break;
+            }
+            case 11: {
+              variant19 = {
+                tag: "emphasis",
+              };
+              break;
+            }
+            case 12: {
+              variant19 = {
+                tag: "strong",
+              };
+              break;
+            }
+            case 13: {
+              variant19 = {
+                tag: "strike-through",
+              };
+              break;
+            }
+            case 14: {
+              let variant13;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant13 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant13 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant13 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant13 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant13 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant13 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant13 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant13 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant13 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr14 = data_view(memory).getInt32(base + 20, true);
+              const len14 = data_view(memory).getInt32(base + 24, true);
+              const list14 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr14, len14));
+              free(ptr14, len14, 1);
+              const ptr15 = data_view(memory).getInt32(base + 28, true);
+              const len15 = data_view(memory).getInt32(base + 32, true);
+              const list15 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr15, len15));
+              free(ptr15, len15, 1);
+              variant19 = {
+                tag: "link",
+                val: [variant13, list14, list15],
+              };
+              break;
+            }
+            case 15: {
+              let variant16;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant16 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant16 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant16 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant16 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant16 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant16 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant16 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant16 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant16 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr17 = data_view(memory).getInt32(base + 20, true);
+              const len17 = data_view(memory).getInt32(base + 24, true);
+              const list17 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr17, len17));
+              free(ptr17, len17, 1);
+              const ptr18 = data_view(memory).getInt32(base + 28, true);
+              const len18 = data_view(memory).getInt32(base + 32, true);
+              const list18 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr18, len18));
+              free(ptr18, len18, 1);
+              variant19 = {
+                tag: "image",
+                val: [variant16, list17, list18],
+              };
+              break;
+            }
+            default:
+            throw new RangeError("invalid variant discriminant for Tag");
+          }
+          variant43 = {
+            tag: "start",
+            val: variant19,
+          };
+          break;
+        }
+        case 1: {
+          let variant37;
+          switch (data_view(memory).getUint8(base + 8, true)) {
+            case 0: {
+              variant37 = {
+                tag: "paragraph",
+              };
+              break;
+            }
+            case 1: {
+              let variant20;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant20 = {
+                    tag: "h1",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant20 = {
+                    tag: "h2",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant20 = {
+                    tag: "h3",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant20 = {
+                    tag: "h4",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant20 = {
+                    tag: "h5",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant20 = {
+                    tag: "h6",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for HeadingLevel");
+              }
+              let variant22;
+              switch (data_view(memory).getUint8(base + 20, true)) {
+                
+                case 0: {
+                  
+                  variant22 = null;
+                  break;
+                }
+                case 1: {
+                  const ptr21 = data_view(memory).getInt32(base + 24, true);
+                  const len21 = data_view(memory).getInt32(base + 28, true);
+                  const list21 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr21, len21));
+                  free(ptr21, len21, 1);
+                  
+                  variant22 = list21;
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              const len24 = data_view(memory).getInt32(base + 36, true);
+              const base24 = data_view(memory).getInt32(base + 32, true);
+              const result24 = [];
+              for (let i = 0; i < len24; i++) {
+                const base = base24 + i * 8;
+                const ptr23 = data_view(memory).getInt32(base + 0, true);
+                const len23 = data_view(memory).getInt32(base + 4, true);
+                const list23 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr23, len23));
+                free(ptr23, len23, 1);
+                result24.push(list23);
+              }
+              free(base24, len24 * 8, 4);
+              variant37 = {
+                tag: "heading",
+                val: [variant20, variant22, result24],
+              };
+              break;
+            }
+            case 2: {
+              variant37 = {
+                tag: "block-quote",
+              };
+              break;
+            }
+            case 3: {
+              let variant26;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant26 = {
+                    tag: "indented",
+                  };
+                  break;
+                }
+                case 1: {
+                  const ptr25 = data_view(memory).getInt32(base + 20, true);
+                  const len25 = data_view(memory).getInt32(base + 24, true);
+                  const list25 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr25, len25));
+                  free(ptr25, len25, 1);
+                  variant26 = {
+                    tag: "fenced",
+                    val: list25,
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for CodeBlockKind");
+              }
+              variant37 = {
+                tag: "code-block",
+                val: variant26,
+              };
+              break;
+            }
+            case 4: {
+              let variant27;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                
+                case 0: {
+                  
+                  variant27 = null;
+                  break;
+                }
+                case 1: {
+                  
+                  variant27 = BigInt.asUintN(64, data_view(memory).getBigInt64(base + 24, true));
+                  break;
+                }
+                
+                default:
+                throw new RangeError("invalid variant discriminant for option");
+              }
+              variant37 = {
+                tag: "list-tag",
+                val: variant27,
+              };
+              break;
+            }
+            case 5: {
+              variant37 = {
+                tag: "item",
+              };
+              break;
+            }
+            case 6: {
+              const ptr28 = data_view(memory).getInt32(base + 16, true);
+              const len28 = data_view(memory).getInt32(base + 20, true);
+              const list28 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr28, len28));
+              free(ptr28, len28, 1);
+              variant37 = {
+                tag: "footnote-definition",
+                val: list28,
+              };
+              break;
+            }
+            case 7: {
+              const len30 = data_view(memory).getInt32(base + 20, true);
+              const base30 = data_view(memory).getInt32(base + 16, true);
+              const result30 = [];
+              for (let i = 0; i < len30; i++) {
+                const base = base30 + i * 1;
+                let variant29;
+                switch (data_view(memory).getUint8(base + 0, true)) {
+                  case 0: {
+                    variant29 = {
+                      tag: "none",
+                    };
+                    break;
+                  }
+                  case 1: {
+                    variant29 = {
+                      tag: "left",
+                    };
+                    break;
+                  }
+                  case 2: {
+                    variant29 = {
+                      tag: "center",
+                    };
+                    break;
+                  }
+                  case 3: {
+                    variant29 = {
+                      tag: "right",
+                    };
+                    break;
+                  }
+                  default:
+                  throw new RangeError("invalid variant discriminant for Alignment");
+                }
+                result30.push(variant29);
+              }
+              free(base30, len30 * 1, 1);
+              variant37 = {
+                tag: "table",
+                val: result30,
+              };
+              break;
+            }
+            case 8: {
+              variant37 = {
+                tag: "table-head",
+              };
+              break;
+            }
+            case 9: {
+              variant37 = {
+                tag: "table-row",
+              };
+              break;
+            }
+            case 10: {
+              variant37 = {
+                tag: "table-cell",
+              };
+              break;
+            }
+            case 11: {
+              variant37 = {
+                tag: "emphasis",
+              };
+              break;
+            }
+            case 12: {
+              variant37 = {
+                tag: "strong",
+              };
+              break;
+            }
+            case 13: {
+              variant37 = {
+                tag: "strike-through",
+              };
+              break;
+            }
+            case 14: {
+              let variant31;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant31 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant31 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant31 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant31 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant31 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant31 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant31 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant31 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant31 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr32 = data_view(memory).getInt32(base + 20, true);
+              const len32 = data_view(memory).getInt32(base + 24, true);
+              const list32 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr32, len32));
+              free(ptr32, len32, 1);
+              const ptr33 = data_view(memory).getInt32(base + 28, true);
+              const len33 = data_view(memory).getInt32(base + 32, true);
+              const list33 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr33, len33));
+              free(ptr33, len33, 1);
+              variant37 = {
+                tag: "link",
+                val: [variant31, list32, list33],
+              };
+              break;
+            }
+            case 15: {
+              let variant34;
+              switch (data_view(memory).getUint8(base + 16, true)) {
+                case 0: {
+                  variant34 = {
+                    tag: "inline",
+                  };
+                  break;
+                }
+                case 1: {
+                  variant34 = {
+                    tag: "reference",
+                  };
+                  break;
+                }
+                case 2: {
+                  variant34 = {
+                    tag: "reference-unknown",
+                  };
+                  break;
+                }
+                case 3: {
+                  variant34 = {
+                    tag: "collapsed",
+                  };
+                  break;
+                }
+                case 4: {
+                  variant34 = {
+                    tag: "collapsed-unknown",
+                  };
+                  break;
+                }
+                case 5: {
+                  variant34 = {
+                    tag: "shortcut",
+                  };
+                  break;
+                }
+                case 6: {
+                  variant34 = {
+                    tag: "shortcut-unknown",
+                  };
+                  break;
+                }
+                case 7: {
+                  variant34 = {
+                    tag: "autolink",
+                  };
+                  break;
+                }
+                case 8: {
+                  variant34 = {
+                    tag: "email",
+                  };
+                  break;
+                }
+                default:
+                throw new RangeError("invalid variant discriminant for LinkType");
+              }
+              const ptr35 = data_view(memory).getInt32(base + 20, true);
+              const len35 = data_view(memory).getInt32(base + 24, true);
+              const list35 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr35, len35));
+              free(ptr35, len35, 1);
+              const ptr36 = data_view(memory).getInt32(base + 28, true);
+              const len36 = data_view(memory).getInt32(base + 32, true);
+              const list36 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr36, len36));
+              free(ptr36, len36, 1);
+              variant37 = {
+                tag: "image",
+                val: [variant34, list35, list36],
+              };
+              break;
+            }
+            default:
+            throw new RangeError("invalid variant discriminant for Tag");
+          }
+          variant43 = {
+            tag: "end",
+            val: variant37,
+          };
+          break;
+        }
+        case 2: {
+          const ptr38 = data_view(memory).getInt32(base + 8, true);
+          const len38 = data_view(memory).getInt32(base + 12, true);
+          const list38 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr38, len38));
+          free(ptr38, len38, 1);
+          variant43 = {
+            tag: "text",
+            val: list38,
+          };
+          break;
+        }
+        case 3: {
+          const ptr39 = data_view(memory).getInt32(base + 8, true);
+          const len39 = data_view(memory).getInt32(base + 12, true);
+          const list39 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr39, len39));
+          free(ptr39, len39, 1);
+          variant43 = {
+            tag: "code",
+            val: list39,
+          };
+          break;
+        }
+        case 4: {
+          const ptr40 = data_view(memory).getInt32(base + 8, true);
+          const len40 = data_view(memory).getInt32(base + 12, true);
+          const list40 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr40, len40));
+          free(ptr40, len40, 1);
+          variant43 = {
+            tag: "html",
+            val: list40,
+          };
+          break;
+        }
+        case 5: {
+          const ptr41 = data_view(memory).getInt32(base + 8, true);
+          const len41 = data_view(memory).getInt32(base + 12, true);
+          const list41 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr41, len41));
+          free(ptr41, len41, 1);
+          variant43 = {
+            tag: "footnote-reference",
+            val: list41,
+          };
+          break;
+        }
+        case 6: {
+          variant43 = {
+            tag: "soft-break",
+          };
+          break;
+        }
+        case 7: {
+          variant43 = {
+            tag: "hard-break",
+          };
+          break;
+        }
+        case 8: {
+          variant43 = {
+            tag: "rule",
+          };
+          break;
+        }
+        case 9: {
+          const bool42 = data_view(memory).getUint8(base + 8, true);
+          variant43 = {
+            tag: "task-list-marker",
+            val: bool42 == 0 ? false : (bool42 == 1 ? true : throw_invalid_bool()),
+          };
+          break;
+        }
+        default:
+        throw new RangeError("invalid variant discriminant for Event");
+      }
+      result44.push([variant43, {
+        start: data_view(memory).getInt32(base + 36, true) >>> 0,
+        end: data_view(memory).getInt32(base + 40, true) >>> 0,
+      }]);
+    }
+    free(base44, len44 * 48, 8);
+    return result44;
+  }
+}
+
+module.exports = { Pulldown, OPTIONS_ENABLE_TABLES, OPTIONS_ENABLE_FOOTNOTES, OPTIONS_ENABLE_STRIKETHROUGH, OPTIONS_ENABLE_TASKLISTS, OPTIONS_ENABLE_SMART_PUNCTUATION, OPTIONS_ENABLE_HEADING_ATTRIBUTES };
+

@@ -1,0 +1,11 @@
+{
+  "name": "pulldown_cmark",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/wapm-packages/pulldown-cmark.git",
+  "author": "Rudra <aroraru@tcd.ie>",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.3.1"
+  }
+}
